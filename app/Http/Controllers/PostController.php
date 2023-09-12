@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Post;
+use File;
 
 
 use Illuminate\Http\Request;
@@ -13,8 +14,10 @@ class PostController extends Controller
      * Display a listing of the resource.
      */
     public function index()
+
     {
-       return view('index');
+        $posts = Post::all();
+       return view('index', compact('posts'));
     }
 
     /**
@@ -23,6 +26,7 @@ class PostController extends Controller
     public function create()
 
     {
+
         $categories = Category::all();
 
        return view ('create',compact('categories'));
@@ -46,12 +50,12 @@ class PostController extends Controller
         $fileName = time()."_".$request->image->getClientOriginalName();
         $filePath = $request->image->storeAs('uploads',$fileName);
 
-        $post = new Post();
-        $post->title = $request->title;
-        $post->description = $request->description;
-        $post->category_id = $request->category_id;
-        $post->image = $filePath;
-        $post->save();
+        $posts = new Post();
+        $posts->title = $request->title;
+        $posts->description = $request->description;
+        $posts->category_id = $request->category_id;
+        $posts->image = 'storage/'.$filePath;
+        $posts->save();
         return redirect()->route('posts.index');
 
     }
@@ -61,7 +65,8 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $posts = Post::findOrFail($id);
+        return view ('show',compact('posts'));
     }
 
     /**
@@ -69,7 +74,9 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-       // return view ('edit');
+        $posts = Post::findOrFail($id);
+        $categories = Category::all();
+       return view ('edit',compact('posts','categories'));
     }
 
     /**
@@ -77,7 +84,36 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'title'=>['required','max:255'],
+            'category_id'=>['required','integer'],
+           'description'=>['required']
+        ]);
+
+        $posts = Post::findOrFail($id);
+
+        if($request->hasFile('image')){
+            $request->validate([
+               'image'=>['required','max:2028','image'],
+            ]);
+
+             $fileName = time()."_".$request->image->getClientOriginalName();
+        $filePath = $request->image->storeAs('uploads',$fileName);
+
+        File::delete(public_path($posts->image));
+        $posts->image = 'storage/'.$filePath;
+
+
+
+        }
+        $posts->title = $request->title;
+        $posts->description = $request->description;
+        $posts->category_id = $request->category_id;
+
+        $posts->save();
+
+        return redirect()->route('posts.index');
+
     }
 
     /**
@@ -85,6 +121,8 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $destory= Post::findOrFail($id);
+        $destory->delete();
+        return redirect()->route('posts.index');
     }
 }

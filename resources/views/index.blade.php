@@ -24,23 +24,32 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>
-                        <img src="https://picsum.photos/200" alt="" width="80px">
-                    </td>
-                    <td>Lorem ipsum dolor dolor perferendis vel, eum quod?</td>
-                    <td>Lorem ipsue eum labore quisquam officiis doloribus ratioriatur?</td>
-                    <td>News</td>
-                    <td>2-5-23</td>
-                    <td>
-                        <a  class="btn-sm btn-success" href="">Show</a>
-                        <a class="btn-sm btn-primary" href="">Edit</a>
-                        <a class="btn-sm btn-danger" href="">Delete</a>
+                    @foreach ($posts as $post)
+                    <tr>
+                        <th scope="row">{{ $post->id }}</th>
+                        <td>
+                            <img src="{{ asset($post->image) }}" alt="" width="80px">
+                        </td>
+                        <td>{{ $post->title }}</td>
+                        <td>{{ $post->description}}</td>
+                        <td>{{ $post->category_id}}</td>
+                        <td>{{ date('d-m-Y',strtotime($post->created_at)) }}</td>
+                        <td>
+                            <a  class="btn-sm btn-success" href="{{route('posts.show',$post->id)}}">Show</a>
+                            <a class="btn-sm btn-primary" href="{{ route('posts.edit',$post->id) }}">Edit</a>
 
-                    </td>
+                            <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn-sm btn-danger mt-2">Delete</button>
 
-                  </tr>
+                            </form>
+
+                        </td>
+
+                      </tr>
+                    @endforeach
+
 
                 </tbody>
               </table>

@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('content')
 
-<div class="mian-content">
+<div class="main-content">
     <div class="card">
         <div class="card-header">
            <h4>Create Post</h4>
